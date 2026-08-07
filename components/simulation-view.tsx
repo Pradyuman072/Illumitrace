@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useCircuitComponents } from "./circuit-component-context"
 import { Button } from "@/components/ui/button"
-import { Play, RefreshCw, AlertTriangle, CheckCircle } from "lucide-react"
+import { Play, RefreshCw, TriangleAlert, CircleCheck } from "lucide-react"
 import { motion } from "framer-motion"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useSimulation } from "./simulation-service"
@@ -71,9 +71,9 @@ export default function SimulationView() {
         <Alert className={`mb-4 ${validationResult.valid ? "bg-green-500/10" : "bg-red-500/10"}`}>
           <div className="flex items-center gap-2">
             {validationResult.valid ? (
-              <CheckCircle className="h-5 w-5 text-green-500" />
+              <CircleCheck className="h-5 w-5 text-green-500" />
             ) : (
-              <AlertTriangle className="h-5 w-5 text-red-500" />
+              <TriangleAlert className="h-5 w-5 text-red-500" />
             )}
             <AlertTitle>{validationResult.valid ? "Circuit Valid" : "Circuit Issues"}</AlertTitle>
           </div>
@@ -92,7 +92,7 @@ export default function SimulationView() {
 
       {schematicComponents.length === 0 && (
         <Alert className="mt-4">
-          <AlertTriangle className="h-4 w-4" />
+          <TriangleAlert className="h-4 w-4" />
           <AlertTitle>No components</AlertTitle>
           <AlertDescription>Add components to your schematic to run a simulation.</AlertDescription>
         </Alert>
@@ -100,7 +100,7 @@ export default function SimulationView() {
 
       {connections.length === 0 && schematicComponents.length > 0 && (
         <Alert className="mt-4">
-          <AlertTriangle className="h-4 w-4" />
+          <TriangleAlert className="h-4 w-4" />
           <AlertTitle>No connections</AlertTitle>
           <AlertDescription>Connect your components to create a complete circuit.</AlertDescription>
         </Alert>

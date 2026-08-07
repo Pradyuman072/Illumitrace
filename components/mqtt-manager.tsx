@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Check, AlertCircle } from "lucide-react"
+import { Loader2, Check, CircleAlert } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import mqtt from "mqtt"
@@ -199,7 +199,7 @@ export default function MqttManager({
       </div>
 
       <Alert variant="outline" className="py-2">
-        <AlertCircle className="h-4 w-4 mr-1" />
+        <CircleAlert className="h-4 w-4 mr-1" />
         <AlertDescription className="text-xs">
           {componentName ? `${componentName} data sent via MQTT` : "Matrix data sent via MQTT to ESP32 LED display"}
         </AlertDescription>

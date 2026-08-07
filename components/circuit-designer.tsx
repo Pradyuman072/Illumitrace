@@ -16,7 +16,7 @@ import MqttManager from "@/components/mqtt-manager"
 import { CircuitComponentProvider } from "@/components/circuit-component-context"
 import SimulationView from "@/components/simulation-view"
 import DetailedSimulation from "@/components/detailed-simulation"
-import { CircuitBoard, Cpu, Zap, BarChart, HelpCircle, Settings } from "lucide-react"
+import { CircuitBoard, Cpu, Zap, BarChart, CircleHelp, Settings } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { motion, AnimatePresence } from "framer-motion"
 import ComponentChecklist from "./component-checklist"
@@ -118,7 +118,7 @@ export default function CircuitDesigner() {
                             size="icon"
                             className="h-8 w-8 border-primary/30 text-primary hover:bg-primary/20 transition-all duration-300"
                           >
-                            <HelpCircle className="h-4 w-4" />
+                            <CircleHelp className="h-4 w-4" />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>Help & Documentation</TooltipContent>
