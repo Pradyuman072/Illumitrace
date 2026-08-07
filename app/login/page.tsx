@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,10 +10,17 @@ import Link from "next/link";
 import { Zap } from "lucide-react";
 
 export default function LoginPage() {
+  const { data: session } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    if (session) {
+      window.location.href = "/";
+    }
+  }, [session]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +35,7 @@ export default function LoginPage() {
         setError("Invalid credentials");
         return;
       }
-      router.push("/");
+      window.location.href = "/";
     } catch (error) {
       setError("Something went wrong");
     }
