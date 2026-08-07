@@ -5,7 +5,7 @@ import { Check, X } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function ComponentChecklist() {
-  const { components, pcbComponents } = useCircuitComponents()
+  const { components, pcbComponents, moveComponentToPcb } = useCircuitComponents()
 
   if (components.length === 0) {
     return (
@@ -35,7 +35,19 @@ export default function ComponentChecklist() {
               <div className="font-medium truncate">{component.name}</div>
               {component.value && <div className="text-xs text-muted-foreground overflow-hidden">{component.value}</div>}
             </div>
-         
+            {!isInPcb ? (
+              <button
+                onClick={() => moveComponentToPcb(component.id)}
+                className="ml-2 p-1 text-muted-foreground hover:text-green-500 hover:bg-green-500/10 rounded transition-colors"
+                title="Add to PCB"
+              >
+                <Check className="h-4 w-4" />
+              </button>
+            ) : (
+              <div className="ml-2 p-1 text-primary">
+                <Check className="h-4 w-4" />
+              </div>
+            )}
           </motion.div>
         )
       })}

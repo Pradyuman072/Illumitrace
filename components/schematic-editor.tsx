@@ -6,7 +6,7 @@ import { useDrop } from "react-dnd"
 import { useDrag } from "react-dnd"
 import { Button } from "@/components/ui/button"
 import { useCircuitComponents } from "./circuit-component-context"
-import { Trash2, RotateCw, Grid, ZoomIn, ZoomOut } from "lucide-react"
+import { Trash2, RotateCw, Grid, ZoomIn, ZoomOut, Send } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { getIconForType } from "./CustomIcons"
 
@@ -69,17 +69,6 @@ const DraggableComponent = React.memo(function DraggableComponent({
     [id],
   )
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        onMoveToPcb(id)
-      } catch (error) {
-        console.error("Error moving component to PCB:", error)
-      }
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [id, onMoveToPcb])
-
   return (
     <div
       ref={drag}
@@ -138,6 +127,23 @@ const DraggableComponent = React.memo(function DraggableComponent({
       {isSelected && (
         <TooltipProvider>
           <div className="absolute -top-10 left-0 flex space-x-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="h-8 w-8 bg-background shadow-sm text-green-500 hover:bg-green-500/10 hover:text-green-600"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onMoveToPcb(id)
+                  }}
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Move to PCB</TooltipContent>
+            </Tooltip>
+
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button

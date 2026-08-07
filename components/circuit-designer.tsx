@@ -20,6 +20,7 @@ import { CircuitBoard, Cpu, Zap, BarChart, CircleHelp, Settings } from "lucide-r
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { motion, AnimatePresence } from "framer-motion"
 import ComponentChecklist from "./component-checklist"
+import ModelManager from "./model-manager"
 
 export default function CircuitDesigner() {
   const [activeView, setActiveView] = useState<string>("schematic")
@@ -196,6 +197,7 @@ export default function CircuitDesigner() {
                     <div className="p-4">
                       <h2 className="font-semibold mb-2 text-primary">Components</h2>
                       <ComponentChecklist />
+                      <ModelManager />
                     </div>
                   
                   </div>

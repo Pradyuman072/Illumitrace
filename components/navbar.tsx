@@ -8,8 +8,10 @@ import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { useTheme } from "next-themes"
 import { usePathname } from "next/navigation"
+import { useSession, signOut } from "next-auth/react"
 
 export default function Navbar() {
+  const { data: session } = useSession()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -160,6 +162,29 @@ export default function Navbar() {
                   <Settings className="h-4 w-4" />
                 </Button>
               </Link>
+            </motion.div>
+            
+            <motion.div variants={itemVariants}>
+              {session ? (
+                <Button 
+                  variant="outline"
+                  size="sm" 
+                  onClick={() => signOut()}
+                  className="border-primary/50 text-primary hover:text-primary-foreground hover:bg-primary/90 transition-all duration-300 ml-2"
+                >
+                  Sign Out
+                </Button>
+              ) : (
+                <Link href="/login">
+                  <Button 
+                    variant="default"
+                    size="sm" 
+                    className="ml-2"
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+              )}
             </motion.div>
           </motion.div>
         </div>
