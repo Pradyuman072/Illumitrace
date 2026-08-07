@@ -92,21 +92,6 @@ export default function Navbar() {
             </motion.div>
             <motion.div variants={itemVariants}>
               <Link
-                href="/docs"
-                className={cn(
-                  "flex items-center text-sm font-medium transition-all duration-300",
-                  "px-3 py-2 rounded-md relative overflow-hidden group",
-                )}
-              >
-                <FileText className="mr-2 h-4 w-4 text-primary group-hover:text-primary-foreground transition-colors duration-300" />
-                <span className="relative z-10 group-hover:text-primary-foreground transition-colors duration-300">
-                  Docs
-                </span>
-                <span className="absolute inset-0 bg-primary scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 rounded-md"></span>
-              </Link>
-            </motion.div>
-            <motion.div variants={itemVariants}>
-              <Link
                 href="/steps"
                 className={cn(
                   "flex items-center text-sm font-medium transition-all duration-300",
@@ -218,15 +203,7 @@ export default function Navbar() {
               <Zap className="mr-2 h-4 w-4 text-primary" />
               Schematic
             </Link>
-            <Link href="/docs">
-              <Button
-                variant={pathname === "/docs" ? "default" : "ghost"}
-                className="w-full justify-start text-sm font-medium transition-colors"
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                Docs
-              </Button>
-            </Link>
+
             <Link href="/steps">
               <Button
                 variant={pathname === "/steps" ? "default" : "ghost"}

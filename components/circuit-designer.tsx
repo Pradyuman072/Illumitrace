@@ -13,7 +13,7 @@ import ComponentSidebar from "@/components/component-sidebar"
 import SchematicEditor from "@/components/schematic-editor"
 import PcbView from "@/components/pcb-view"
 import MqttManager from "@/components/mqtt-manager"
-import { CircuitComponentProvider } from "@/components/circuit-component-context"
+import { CircuitComponentProvider, useCircuitComponents } from "@/components/circuit-component-context"
 import SimulationView from "@/components/simulation-view"
 import DetailedSimulation from "@/components/detailed-simulation"
 import { CircuitBoard, Cpu, Zap, BarChart, CircleHelp, Settings } from "lucide-react"
@@ -22,7 +22,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import ComponentChecklist from "./component-checklist"
 import ModelManager from "./model-manager"
 
-export default function CircuitDesigner() {
+function CircuitDesignerContent() {
+  const { schematicComponents, moveComponentToPcb } = useCircuitComponents()
   const [activeView, setActiveView] = useState<string>("schematic")
   const [isPrototyping, setIsPrototyping] = useState(false)
   const [isSimulating, setIsSimulating] = useState(false)
@@ -31,6 +32,14 @@ export default function CircuitDesigner() {
   useEffect(() => {
     setIsClient(true)
   }, [])
+
+  const handleStartPrototyping = () => {
+    if (!isPrototyping) {
+      schematicComponents.forEach((comp) => moveComponentToPcb(comp.id))
+      setActiveView("pcb")
+    }
+    setIsPrototyping(!isPrototyping)
+  }
 
   const viewButtons = useMemo(
     () => [
@@ -71,8 +80,7 @@ export default function CircuitDesigner() {
   }
 
   return (
-    <CircuitComponentProvider>
-      <DndProviderWithNoSSR>
+    <DndProviderWithNoSSR>
         <div className="flex flex-col h-[calc(100vh-4rem)] w-full overflow-hidden">
           <div className="flex flex-1 overflow-hidden">
             <SidebarProvider>
@@ -157,7 +165,7 @@ export default function CircuitDesigner() {
                         <TooltipTrigger asChild>
                           <Button
                             variant={isPrototyping ? "destructive" : "default"}
-                            onClick={() => setIsPrototyping(!isPrototyping)}
+                            onClick={handleStartPrototyping}
                             className={`transition-all duration-300 ${
                               isPrototyping
                                 ? "bg-destructive/90 hover:bg-destructive"
@@ -210,6 +218,13 @@ export default function CircuitDesigner() {
           </div>
         </div>
       </DndProviderWithNoSSR>
+  )
+}
+
+export default function CircuitDesigner() {
+  return (
+    <CircuitComponentProvider>
+      <CircuitDesignerContent />
     </CircuitComponentProvider>
   )
 }

@@ -95,6 +95,10 @@ body {
     background-image: linear-gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;
-    background-color: white;
+    background-color: hsl(0, 0%, 98%);
+  }
+
+  .dark .bg-grid-pattern-dark {
+    background-color: hsl(0, 0%, 7.5%);
   }
 }
