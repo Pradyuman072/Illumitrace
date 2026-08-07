@@ -4,17 +4,19 @@ import connectToDatabase from "@/lib/mongodb";
 import Circuit from "@/models/Circuit";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: { id: string } | Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    const resolvedParams = await params;
+
     await connectToDatabase();
     
     // @ts-ignore
-    const circuit = await Circuit.findOne({ _id: params.id, userId: session.user.id });
+    const circuit = await Circuit.findOne({ _id: resolvedParams.id, userId: session.user.id });
     
     if (!circuit) {
       return NextResponse.json({ message: "Circuit not found" }, { status: 404 });
@@ -27,17 +29,19 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: { id: string } | Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    const resolvedParams = await params;
+
     await connectToDatabase();
     
     // @ts-ignore
-    const deletedCircuit = await Circuit.findOneAndDelete({ _id: params.id, userId: session.user.id });
+    const deletedCircuit = await Circuit.findOneAndDelete({ _id: resolvedParams.id, userId: session.user.id });
     
     if (!deletedCircuit) {
       return NextResponse.json({ message: "Circuit not found or unauthorized" }, { status: 404 });

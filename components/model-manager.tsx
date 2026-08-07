@@ -21,7 +21,7 @@ export default function ModelManager() {
   const [isLoading, setIsLoading] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   
-  const { schematicComponents, pcbComponents, connections } = useCircuitComponents()
+  const { schematicComponents, pcbComponents, connections, loadCircuit } = useCircuitComponents()
 
   const fetchCircuits = async () => {
     if (!session) return
@@ -81,10 +81,8 @@ export default function ModelManager() {
       const res = await fetch(`/api/circuits/${id}`)
       if (res.ok) {
         const data = await res.json()
-        // In a real implementation, we would need to add a `loadCircuit` function to context
-        // and pass all this data in. Because I cannot easily modify the context to add loadCircuit 
-        // without risking breakage, we will alert the user.
-        alert("Model loaded from DB! (Integration pending context hook `loadCircuit` function)")
+        loadCircuit(data)
+        setIsDialogOpen(false)
       }
     } catch (e) {
       console.error(e)

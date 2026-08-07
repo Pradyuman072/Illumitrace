@@ -150,6 +150,7 @@ interface CircuitComponentContextType {
   removeConnection: (id: string) => void
   clearConnections: () => void
   searchComponents: (query: string) => Component[]
+  loadCircuit: (circuitData: any) => void
 }
 
 const CircuitComponentContext = createContext<CircuitComponentContextType | undefined>(undefined)
@@ -398,6 +399,13 @@ export function CircuitComponentProvider({ children }: { children: React.ReactNo
     setConnections([])
   }, [])
 
+  const loadCircuit = useCallback((circuitData: any) => {
+    setComponents(circuitData.schematicComponents || [])
+    setSchematicComponents(circuitData.schematicComponents || [])
+    setPcbComponents(circuitData.pcbComponents || [])
+    setConnections(circuitData.connections || [])
+  }, [])
+
   const searchComponents = useCallback(
     (query: string) => {
       if (!query) return []
@@ -433,6 +441,7 @@ export function CircuitComponentProvider({ children }: { children: React.ReactNo
         removeConnection,
         clearConnections,
         searchComponents,
+        loadCircuit,
       }}
     >
       {children}
