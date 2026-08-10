@@ -50,6 +50,7 @@ export default function MqttManager({
   // Heartbeat tracking
   const lastHeartbeatRef = useRef<number>(0)
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const waitingForAckRef = useRef<string | null>(null)
   
   const pendingSendRef = useRef(false)
 
@@ -89,22 +90,31 @@ export default function MqttManager({
   }, [matrix, componentName, addMessage])
 
   const sendMatrix = useCallback(() => {
+    if (status !== "connected") {
+      pendingSendRef.current = true
+      addMessage(`[BLOCKED] ESP32 not confirmed online — message not sent`)
+      return
+    }
+
     if (clientRef.current && clientRef.current.connected) {
       const message = matrixToString()
-      addMessage(`[MQTT] Publishing to ${MQTT_CONFIG.topics.publish}`)
+      const sendId = Date.now().toString().slice(-4)
+      waitingForAckRef.current = sendId
+      
+      const payload = `${sendId}|${message}`
+      addMessage(`[MQTT] Published to broker, awaiting device ack... (${sendId})`)
 
-      clientRef.current.publish(MQTT_CONFIG.topics.publish, message, { qos: 1, retain: false }, (err) => {
+      clientRef.current.publish(MQTT_CONFIG.topics.publish, payload, { qos: 1, retain: false }, (err) => {
         if (err) {
           addMessage(`[ERROR] Publish failed: ${err.message}`)
         } else {
-          addMessage(`[SUCCESS] Data sent. Waiting for ACK...`)
           pendingSendRef.current = false
         }
       })
     } else {
       pendingSendRef.current = true
     }
-  }, [matrixToString, addMessage])
+  }, [matrixToString, addMessage, status])
 
   // Heartbeat monitor loop
   useEffect(() => {
@@ -184,7 +194,18 @@ export default function MqttManager({
 
     mqttClient.on("message", (topic, message) => {
       const msgStr = message.toString()
-      addMessage(`[ESP32] ${msgStr}`)
+      
+      if (msgStr.startsWith("ACK:")) {
+        const ackId = msgStr.substring(4)
+        if (waitingForAckRef.current === ackId) {
+          addMessage(`[SUCCESS] Device received and rendered payload ${ackId}`)
+          waitingForAckRef.current = null
+        } else {
+          addMessage(`[ESP32] Stale or unknown ACK received: ${ackId}`)
+        }
+      } else {
+        addMessage(`[ESP32] ${msgStr}`)
+      }
       
       // Update heartbeat on ANY message from ESP32
       lastHeartbeatRef.current = Date.now()

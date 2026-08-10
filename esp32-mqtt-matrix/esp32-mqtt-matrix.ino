@@ -234,6 +234,14 @@ void callback(char* topic, byte* payload, unsigned int length) {
     mqttClient.publish(mqtt_status_topic, "PONG");
     return; // don't touch the matrix or run parseMatrixData on this
   }
+  
+  // Extract ID if present (format: "ID|payload")
+  String ackId = "UNKNOWN";
+  int pipeIndex = message.indexOf('|');
+  if (pipeIndex != -1) {
+    ackId = message.substring(0, pipeIndex);
+    message = message.substring(pipeIndex + 1);
+  }
 
   mqttClient.publish(mqtt_status_topic, "Processing matrix data...");
 
@@ -241,7 +249,10 @@ void callback(char* topic, byte* payload, unsigned int length) {
   displayMatrixOnSerial();
   updateMatrix();
   showingDefaultAnimation = false;
-  mqttClient.publish(mqtt_status_topic, "Matrix updated successfully");
+  
+  // Explicit ESP32-side ack to frontend
+  String ackMsg = "ACK:" + ackId;
+  mqttClient.publish(mqtt_status_topic, ackMsg.c_str());
 }
 // Configuration Functions (from second code)
 void startConfigPortal() {
