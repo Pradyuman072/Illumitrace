@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import MqttManager from "./mqtt-manager"
 import { getIconForType } from "./CustomIcons"
+import { ErrorBoundary } from "./error-boundary"
 
 // Constants for PCB grid
 const GRID_SIZE = 64
@@ -707,8 +708,9 @@ export default function PcbView({ isPrototyping }: PcbViewProps) {
   }
 
   return (
-    <div className="relative h-full flex">
-      {/* Main PCB View */}
+    <ErrorBoundary>
+      <div className="relative h-full flex">
+        {/* Main PCB View */}
       <div className="flex-1 items-center overflow-hidden p-4 flex flex-col">
         <div className="flex flex-wrap justify-between mb-4 gap-2">
           <div className="flex flex-wrap gap-2">
@@ -988,6 +990,7 @@ export default function PcbView({ isPrototyping }: PcbViewProps) {
           </ScrollArea>
         </div>
       )}
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }

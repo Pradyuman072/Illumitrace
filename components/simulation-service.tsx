@@ -305,7 +305,7 @@ export function useSimulation() {
     })
 
     if (invalidConnections.length > 0) {
-      return {
+      return { 
         valid: false,
         message: `${invalidConnections.length} invalid connection(s) found (check terminal polarities)`,
       }
