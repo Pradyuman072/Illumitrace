@@ -367,26 +367,37 @@ void updateMatrix() {
 }
 
 void parseMatrixData(String message) {
+  // Always clear the matrix first (equivalent to old dense format filled with 0s)
   memset(matrixBuffer, 0, sizeof(matrixBuffer));
-  int row = 0;
+  
+  if (message.length() == 0) {
+    return; // Empty payload just clears the display
+  }
+
   int startPos = 0;
-  while (row < NUM_ROWS) {
+  while (startPos < message.length()) {
     int endPos = message.indexOf(';', startPos);
     if (endPos == -1) endPos = message.length();
-    String rowData = message.substring(startPos, endPos);
-
-    int col = 0;
-    int cellStart = 0;
-    while (col < NUM_COLS && cellStart < rowData.length()) {
-      int commaPos = rowData.indexOf(',', cellStart);
-      if (commaPos == -1) commaPos = rowData.length();
-      matrixBuffer[row][col++] = rowData.substring(cellStart, commaPos).toInt();
-      cellStart = commaPos + 1;
+    
+    String triplet = message.substring(startPos, endPos);
+    
+    // Expected format: "x,y,value"
+    int firstComma = triplet.indexOf(',');
+    int secondComma = triplet.indexOf(',', firstComma + 1);
+    
+    if (firstComma != -1 && secondComma != -1) {
+      int x = triplet.substring(0, firstComma).toInt();
+      int y = triplet.substring(firstComma + 1, secondComma).toInt();
+      int val = triplet.substring(secondComma + 1).toInt();
+      
+      // Ensure bounds check before assigning to global buffer
+      if (x >= 0 && x < NUM_COLS && y >= 0 && y < NUM_ROWS) {
+        // As before, any non-zero value turns the LED on
+        matrixBuffer[y][x] = (val != 0); 
+      }
     }
 
     startPos = endPos + 1;
-    row++;
-    if (startPos >= message.length()) break;
   }
 }
 

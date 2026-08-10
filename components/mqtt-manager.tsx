@@ -62,9 +62,30 @@ export default function MqttManager({
   }, [])
 
   const matrixToString = useCallback(() => {
-    const matrixData = matrix.map((row) => row.join(",")).join(";")
-    addMessage(`[DATA] ${componentName || "Matrix"} payload: ${matrixData.length} bytes`)
-    return matrixData
+    // Old dense encoding (for metric comparison)
+    const denseSize = matrix.map((row) => row.join(",")).join(";").length
+    
+    // New sparse encoding: x,y,value;
+    let sparseData = ""
+    for (let y = 0; y < matrix.length; y++) {
+      for (let x = 0; x < matrix[y].length; x++) {
+        if (matrix[y][x] !== 0) {
+          sparseData += `${x},${y},${matrix[y][x]};`
+        }
+      }
+    }
+    
+    // Remove trailing semicolon if it exists
+    if (sparseData.endsWith(";")) {
+      sparseData = sparseData.slice(0, -1)
+    }
+    
+    // Add metrics log to dashboard
+    addMessage(`[OPTIMIZATION] Dense: ${denseSize} bytes | Sparse: ${sparseData.length || 1} bytes`)
+    const reduction = denseSize > 0 ? ((denseSize - Math.max(1, sparseData.length)) / denseSize * 100).toFixed(1) : 0
+    addMessage(`[DATA] ${componentName || "Matrix"} payload sent (${reduction}% smaller)`)
+    
+    return sparseData
   }, [matrix, componentName, addMessage])
 
   const sendMatrix = useCallback(() => {
