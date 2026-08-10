@@ -210,9 +210,14 @@ export default function MqttManager({
   useEffect(() => {
     if (matrix && matrix.length > 0) {
       pendingSendRef.current = true
-      if (status === "connected" && clientRef.current) {
-        sendMatrix()
-      }
+      
+      const timeoutId = setTimeout(() => {
+        if (status === "connected" && clientRef.current) {
+          sendMatrix()
+        }
+      }, 300)
+      
+      return () => clearTimeout(timeoutId)
     }
   }, [matrix, status, sendMatrix])
 
