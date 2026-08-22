@@ -71,7 +71,7 @@ void setLed(int device, int row, int col, bool state);
 void updateLED(int x, int y, bool state);
 void updateMatrix();
 void callback(char* topic, byte* payload, unsigned int length);
-void parseMatrixData(String message);
+bool parseMatrixData(String message);
 void parseRowData(String rowData, int row);
 void displayMatrixOnSerial();
 void reconnect();
@@ -245,7 +245,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
   mqttClient.publish(mqtt_status_topic, "Processing matrix data...");
 
-  parseMatrixData(message);
+  bool isValid = parseMatrixData(message);
+  
+  if (!isValid) {
+    Serial.println("Payload corrupted!");
+    mqttClient.publish(mqtt_status_topic, "ERROR: Payload corrupted");
+    showErrorAnimation();
+    return; // Abort, do not render, do not send ACK
+  }
+
   displayMatrixOnSerial();
   updateMatrix();
   showingDefaultAnimation = false;
@@ -377,12 +385,12 @@ void updateMatrix() {
   }
 }
 
-void parseMatrixData(String message) {
+bool parseMatrixData(String message) {
   // Always clear the matrix first (equivalent to old dense format filled with 0s)
   memset(matrixBuffer, 0, sizeof(matrixBuffer));
   
   if (message.length() == 0) {
-    return; // Empty payload just clears the display
+    return true; // Empty payload just clears the display
   }
 
   int startPos = 0;
@@ -396,20 +404,25 @@ void parseMatrixData(String message) {
     int firstComma = triplet.indexOf(',');
     int secondComma = triplet.indexOf(',', firstComma + 1);
     
-    if (firstComma != -1 && secondComma != -1) {
-      int x = triplet.substring(0, firstComma).toInt();
-      int y = triplet.substring(firstComma + 1, secondComma).toInt();
-      int val = triplet.substring(secondComma + 1).toInt();
-      
-      // Ensure bounds check before assigning to global buffer
-      if (x >= 0 && x < NUM_COLS && y >= 0 && y < NUM_ROWS) {
-        // As before, any non-zero value turns the LED on
-        matrixBuffer[y][x] = (val != 0); 
-      }
+    if (firstComma == -1 || secondComma == -1) {
+      return false; // Malformed payload structure
+    }
+    
+    int x = triplet.substring(0, firstComma).toInt();
+    int y = triplet.substring(firstComma + 1, secondComma).toInt();
+    int val = triplet.substring(secondComma + 1).toInt();
+    
+    // Ensure bounds check before assigning to global buffer
+    if (x >= 0 && x < NUM_COLS && y >= 0 && y < NUM_ROWS) {
+      // As before, any non-zero value turns the LED on
+      matrixBuffer[y][x] = (val != 0); 
+    } else {
+      return false; // Out of bounds coordinates indicates corruption
     }
 
     startPos = endPos + 1;
   }
+  return true;
 }
 
 void displayMatrixOnSerial() {
