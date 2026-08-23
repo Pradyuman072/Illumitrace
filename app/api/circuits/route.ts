@@ -49,7 +49,7 @@ export async function GET(req: Request) {
     await connectToDatabase();
     
     // @ts-ignore
-    const circuits = await Circuit.find({ userId: session.user.id }).sort({ updatedAt: -1 });
+    const circuits = await Circuit.find({ userId: session.user.id }).select('_id name updatedAt').sort({ updatedAt: -1 });
 
     return NextResponse.json(circuits, { status: 200 });
   } catch (error) {
