@@ -13,15 +13,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { useToast } from "@/hooks/use-toast"
 
 export default function ModelManager() {
   const { data: session } = useSession()
   const [circuits, setCircuits] = useState<any[]>([])
-  const [circuitName, setCircuitName] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { toast } = useToast()
   
-  const { schematicComponents, pcbComponents, connections, loadCircuit } = useCircuitComponents()
+  const { 
+    schematicComponents, 
+    pcbComponents, 
+    connections, 
+    loadCircuit, 
+    currentCircuitId, 
+    currentCircuitName, 
+    setCurrentCircuitName,
+    setCurrentCircuitId,
+    clearCircuit
+  } = useCircuitComponents()
 
   const fetchCircuits = async () => {
     if (!session) return
@@ -43,25 +54,48 @@ export default function ModelManager() {
   }, [isDialogOpen, session])
 
   const handleSave = async () => {
-    if (!circuitName.trim()) return
+    if (!currentCircuitName.trim()) return
     setIsLoading(true)
     try {
-      const res = await fetch("/api/circuits", {
-        method: "POST",
+      const isUpdate = !!currentCircuitId;
+      const url = isUpdate ? `/api/circuits/${currentCircuitId}` : "/api/circuits";
+      const method = isUpdate ? "PUT" : "POST";
+      
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: circuitName,
+          name: currentCircuitName,
           schematicComponents,
           pcbComponents,
           connections
         })
       })
       if (res.ok) {
-        setCircuitName("")
+        const savedData = await res.json();
+        // If it was a new circuit, store the returned ID
+        if (!isUpdate && savedData._id) {
+          setCurrentCircuitId(savedData._id);
+        }
+        toast({
+          title: "Success",
+          description: "Circuit saved successfully.",
+        })
         fetchCircuits()
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to save circuit.",
+          variant: "destructive",
+        })
       }
     } catch (e) {
       console.error(e)
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while saving.",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
@@ -69,10 +103,30 @@ export default function ModelManager() {
 
   const handleDelete = async (id: string) => {
     try {
-      await fetch(`/api/circuits/${id}`, { method: "DELETE" })
-      fetchCircuits()
+      const res = await fetch(`/api/circuits/${id}`, { method: "DELETE" })
+      if (res.ok) {
+        if (id === currentCircuitId) {
+          clearCircuit()
+        }
+        toast({
+          title: "Success",
+          description: "Circuit deleted.",
+        })
+        fetchCircuits()
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete circuit.",
+          variant: "destructive",
+        })
+      }
     } catch (e) {
       console.error(e)
+      toast({
+        title: "Error",
+        description: "An error occurred while deleting.",
+        variant: "destructive",
+      })
     }
   }
 
@@ -133,12 +187,15 @@ export default function ModelManager() {
           <div className="flex gap-2 mb-4 mt-2">
             <Input 
               placeholder="Circuit Name..." 
-              value={circuitName}
-              onChange={(e) => setCircuitName(e.target.value)}
+              value={currentCircuitName}
+              onChange={(e) => setCurrentCircuitName(e.target.value)}
               className="bg-background"
             />
-            <Button onClick={handleSave} disabled={isLoading || !circuitName.trim()}>
+            <Button onClick={handleSave} disabled={isLoading || !currentCircuitName.trim()}>
               <Save className="h-4 w-4 mr-2" /> Save
+            </Button>
+            <Button variant="outline" onClick={clearCircuit} disabled={isLoading}>
+              New
             </Button>
           </div>
           

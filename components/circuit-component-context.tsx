@@ -151,6 +151,11 @@ interface CircuitComponentContextType {
   clearConnections: () => void
   searchComponents: (query: string) => Component[]
   loadCircuit: (circuitData: any) => void
+  currentCircuitId: string | null
+  currentCircuitName: string
+  setCurrentCircuitId: (id: string | null) => void
+  setCurrentCircuitName: (name: string) => void
+  clearCircuit: () => void
 }
 
 const CircuitComponentContext = createContext<CircuitComponentContextType | undefined>(undefined)
@@ -278,6 +283,8 @@ export function CircuitComponentProvider({ children }: { children: React.ReactNo
   const [connections, setConnections] = useState<Connection[]>([])
   const [availableComponents, setAvailableComponents] = useState<Component[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [currentCircuitId, setCurrentCircuitId] = useState<string | null>(null)
+  const [currentCircuitName, setCurrentCircuitName] = useState<string>("")
 
   useEffect(() => {
     const loadComponents = async () => {
@@ -400,10 +407,21 @@ export function CircuitComponentProvider({ children }: { children: React.ReactNo
   }, [])
 
   const loadCircuit = useCallback((circuitData: any) => {
+    setCurrentCircuitId(circuitData._id)
+    setCurrentCircuitName(circuitData.name || "")
     setComponents(circuitData.schematicComponents || [])
     setSchematicComponents(circuitData.schematicComponents || [])
     setPcbComponents(circuitData.pcbComponents || [])
     setConnections(circuitData.connections || [])
+  }, [])
+
+  const clearCircuit = useCallback(() => {
+    setCurrentCircuitId(null)
+    setCurrentCircuitName("")
+    setComponents([])
+    setSchematicComponents([])
+    setPcbComponents([])
+    setConnections([])
   }, [])
 
   const searchComponents = useCallback(
@@ -442,6 +460,11 @@ export function CircuitComponentProvider({ children }: { children: React.ReactNo
         clearConnections,
         searchComponents,
         loadCircuit,
+        currentCircuitId,
+        currentCircuitName,
+        setCurrentCircuitId,
+        setCurrentCircuitName,
+        clearCircuit,
       }}
     >
       {children}

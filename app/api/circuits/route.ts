@@ -32,7 +32,7 @@ const ConnectionSchema = z.object({
   end: z.string()
 }).passthrough();
 
-const CircuitSaveSchema = z.object({
+export const CircuitSaveSchema = z.object({
   name: z.string().optional(),
   schematicComponents: z.array(ComponentSchema).max(500, "Too many schematic components (max 500)").optional(),
   pcbComponents: z.array(ComponentSchema).max(500, "Too many PCB components (max 500)").optional(),

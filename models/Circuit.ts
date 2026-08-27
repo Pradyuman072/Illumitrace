@@ -28,4 +28,6 @@ const CircuitSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+CircuitSchema.index({ userId: 1, updatedAt: -1 });
+
 export default mongoose.models.Circuit || mongoose.model("Circuit", CircuitSchema);
